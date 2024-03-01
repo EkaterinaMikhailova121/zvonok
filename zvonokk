@@ -1,31 +1,40 @@
-import kotlinx.coroutines.*
+import java.util.*
+import kotlin.concurrent.timer
 
-suspend fun main() = coroutineScope {
-    val shot1 =
-        launch {
-        for (i in 1 .. 4) {
-            delay(1000L)
-            print("chk ")
-        }
-            println("chk = POOF!")
+fun main() {
+    val alarm1Time = readTime("Введите время до звонка первого будильника (в секундах): ")
+    val alarm2Time = readTime("Введите время до звонка второго будильника (в секундах): ")
+    val alarm3Time = readTime("Введите время до звонка третьего будильника (в секундах): ")
+
+    val timer1 = createTimer(alarm1Time, "Будильник 1: Тик-так", "Будильник 1: Время вышло! Просыпайся!")
+    val timer2 = createTimer(alarm2Time, "Будильник 2: Тик-так", "Будильник 2: Время вышло! Просыпайся!")
+    val timer3 = createTimer(alarm3Time, "Будильник 3: Тик-так", "Будильник 3: Время вышло! Просыпайся!")
+
+    Timer().schedule(timer1, 0, 1000)
+    Timer().schedule(timer2, 0, 1000)
+    Timer().schedule(timer3, 0, 1000)
+}
+
+fun readTime(prompt: String): Long {
+    println(prompt)
+    return readLine()?.toLongOrNull() ?: run {
+        println("Ошибка: Введите корректное число.")
+        readTime(prompt)
     }
-    val shot2 =
-    launch {
-        for (i in 1 .. 6) {
-            delay(1020L)
-            print("pick ")
+}
+
+fun createTimer(time: Long, tickSound: String, alarmSound: String): TimerTask {
+    return object : TimerTask() {
+        var remainingTime = time
+
+        override fun run() {
+            if (remainingTime > 0) {
+                println(tickSound)
+                remainingTime--
+            } else {
+                println(alarmSound)
+                cancel()
+            }
         }
-            println("pick = POOF!")
     }
-    val shot3 =
-    launch {
-        for (i in 1 .. 9) {
-            delay(1040L)
-            println("meow ")
-        }
-            println("meow = POOF!")
-    }
-    shot1.join()
-    shot2.join()
-    shot3.join()
 }
